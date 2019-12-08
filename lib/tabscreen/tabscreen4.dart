@@ -14,17 +14,20 @@ import 'package:myrecycle/login.dart';
 import 'package:myrecycle/splashscreen.dart';
 import 'dart:convert';
 import 'package:myrecycle/registerform.dart';
+import 'package:intl/intl.dart';
+import 'package:random_string/random_string.dart';
+import 'package:myrecycle/payment.dart';
 
-String urlgetUser;
-String urluploadImage;
+String urlgetUser = "http://lawlietaini.com/myrecycle_user/php/get_user.php";
+String urluploadImage =
+    "http://lawlietaini.com/myrecycle_user/php/uploadimage_profile.php";
 String urlupdate;
+
 File _image;
 int number = 0;
-
-
+String _value;
 
 class TabScreen4 extends StatefulWidget {
-
   final User user;
 
   TabScreen4({this.user});
@@ -34,29 +37,29 @@ class TabScreen4 extends StatefulWidget {
 }
 
 class _TabScreen4State extends State<TabScreen4> {
-
   final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
   GlobalKey<RefreshIndicatorState> refreshKey;
 
   Position _currentPosition;
   String _currentAddress = "Searching current location";
 
-  @override 
+  @override
   void initState() {
     super.initState();
     refreshKey = GlobalKey<RefreshIndicatorState>();
-    _getCurrentLocation;
-
+    _getCurrentLocation();
   }
 
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(
-      SystemUiOverlayStyle(statusBarColor: Colors.deepOrange)
+      SystemUiOverlayStyle(statusBarColor: Colors.green[900]),
     );
+    Size media = MediaQuery.of(context).size;
     return MaterialApp(
-     debugShowCheckedModeBanner: false,
+        debugShowCheckedModeBanner: false,
         home: Scaffold(
+          backgroundColor: Colors.white,
           resizeToAvoidBottomPadding: false,
           body: ListView.builder(
               //Step 6: Count the data
@@ -66,165 +69,195 @@ class _TabScreen4State extends State<TabScreen4> {
                   return Container(
                     child: Column(
                       children: <Widget>[
-                        Stack(children: <Widget>[
-                          Image.asset(
-                            "assets/images/green1.jpg",
-                            fit: BoxFit.fitWidth,
-                          ),
-                          Column(
+                        Stack(
+                            alignment: Alignment.topCenter,
+                            overflow: Overflow.visible,
                             children: <Widget>[
-                              Center(
-                                child: Text("MyHelper",
-                                    style: TextStyle(
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white)),
+                              Row(children: <Widget>[
+                                Container(
+                                  height: media.height * 0.20,
+                                  width: media.width,
+                                  child: Image.asset(
+                                    "assets/images/green0.jpg",
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ]),
+                              Positioned(
+                                top: 50,
+                                child: GestureDetector(
+                                  onTap: _takePicture,
+                                  child: Container(
+                                    height: 170,
+                                    width: 170,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      image: DecorationImage(
+                                          fit: BoxFit.cover,
+                                          image: NetworkImage(
+                                              "http://lawlietaini.com/myrecycle_user/profile/${widget.user.email}.jpg?dummy=${(number)}'")),
+                                      border: Border.all(
+                                          color: Colors.white, width: 5.0),
+                                    ),
+                                  ),
+                                ),
                               ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              GestureDetector(
+                              Column(children: <Widget>[
+                                Center(
+                                  child: Text("MyHelper",
+                                      style: TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.grey[200])),
+                                ),
+                              ]),
+                            ]),
+                        SizedBox(
+                          height: 75,
+                        ),
+                        /*     GestureDetector(
                                 onTap: _takePicture,
                                 child: Container(
                                     width: 150.0,
                                     height: 150.0,
                                     decoration: new BoxDecoration(
                                         shape: BoxShape.circle,
-                                        border: Border.all(color: Colors.white),
+                                        border: Border.all(width:5,color: Colors.white),
+
                                        image: new DecorationImage(
                                             fit: BoxFit.cover,
+                                          colorFilter: ColorFilter.mode(Colors.blue, BlendMode.modulate),
                                            image: new NetworkImage(
                                                 "http://lawlietaini.com/myrecycle_user/profile/${widget.user.email}.jpg?dummy=${(number)}'")
-                                                )
-                                                )
                                                 ),
-                              ), 
-                              SizedBox(height: 5),
-                              Container(
-                                child: Text(
-                                  widget.user.name?.toUpperCase() ??
-                                      'Not register',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16),
+                                                
+                                                ),
+                                                
+                                                ),
+                              ),  */
+
+                        Container(
+                          alignment: Alignment.bottomCenter,
+                          child: Text(
+                            widget.user.name?.toUpperCase() ?? 'Not register',
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                        ),
+                        Column(
+                          children: <Widget>[
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Padding(
+                                  padding: EdgeInsets.only(left: 15),
+                                  child: Icon(
+                                    Icons.verified_user,
+                                    color: Colors.blue[900],
+                                  ),
+                                ),
+                                Container(
+                                  child: Text(
+                                    widget.user.email,
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 25,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: <Widget>[
+                            Padding(
+                              padding: EdgeInsets.only(left: 15),
+                              child: Icon(
+                                Icons.rate_review,
+                              ),
+                            ),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            Flexible(
+                              child: RatingBar(
+                                itemCount: 5,
+                                itemSize: 20,
+                                initialRating: double.parse(
+                                    widget.user.rating.toString() ?? 0.0),
+                                itemPadding:
+                                    EdgeInsets.symmetric(horizontal: 2.0),
+                                itemBuilder: (context, _) => Icon(
+                                  Icons.star,
+                                  color: Colors.teal[600],
                                 ),
                               ),
-                              Container(
-                                child: Text(
-                                  widget.user.email,
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14),
-                                ),
-                              ),
-                              Column(
-                                children: <Widget>[
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: <Widget>[
-                                      Icon(
-                                        Icons.phone_android,
-                                      ),
-                                      Text(widget.user.phone??
-                                          'not registered'),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  Icon(
-                                    Icons.rate_review,
-                                  ),
-                                  SizedBox(
-                                    width: 5,
-                                  ),
-                                  RatingBar(
-                                    itemCount: 5,
-                                    itemSize: 12,
-                                    initialRating: double.parse(
-                                        widget.user.rating.toString() ?? 0.0),
-                                    itemPadding:
-                                        EdgeInsets.symmetric(horizontal: 2.0),
-                                    itemBuilder: (context, _) => Icon(
-                                      Icons.star,
-                                      color: Colors.amber,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Column(
-                                children: <Widget>[
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: <Widget>[
-                                      Icon(
-                                        Icons.rounded_corner,
-                                      ),
-                                      Text("Job Radius " +
-                                              widget.user.radius +
-                                              "KM" ??
-                                          'Job Radius 0 KM'),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              Column(
-                                children: <Widget>[
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: <Widget>[
-                                      Icon(
-                                        Icons.credit_card,
-                                      ),
-                                      SizedBox(
-                                        width: 5,
-                                      ),
-                                      Flexible(
-                                        child: Text("You have " +
-                                                widget.user.credit +
-                                                " Credit" ??
-                                            "You have 0 Credit"),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              Center(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Icon(
-                                      Icons.location_on,
-                                    ),
-                                    SizedBox(
-                                      width: 5,
-                                    ),
-                                    Flexible(
-                                      child: Text(_currentAddress),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              SizedBox(
-                                height: 5,
-                              ),
-                              Container(
-                                color: Colors.deepOrange,
-                                child: Center(
-                                  child: Text("My Profile ",
-                                      style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white)),
-                                ),
-                              ),
-                            ],
+                            ),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            Icon(
+                              Icons.phone,
+                            ),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            Expanded(
+                              child:
+                                  Text(widget.user.phone ?? 'not registered'),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Row(children: <Widget>[
+                          Padding(
+                            padding: EdgeInsets.only(left: 15),
+                            child: Icon(
+                              Icons.credit_card,
+                            ),
+                          ),
+                          SizedBox(
+                            width: 5,
+                          ),
+                          Flexible(
+                            child: Text(
+                                "You have " + widget.user.credit + " Credit" ??
+                                    "You have 0 Credit"),
+                          ),
+                          SizedBox(
+                            width: 5,
+                          ),
+                          Icon(
+                            Icons.location_on,
+                          ),
+                          SizedBox(
+                            width: 5,
+                          ),
+                          Expanded(
+                            child: Text(_currentAddress),
                           ),
                         ]),
                         SizedBox(
-                          height: 4,
+                          height: 15,
+                        ),
+                        Container(
+                          color: Colors.tealAccent[400],
+                          child: Center(
+                            child: Text("My Profile ",
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey[850])),
+                          ),
                         ),
                       ],
                     ),
@@ -235,38 +268,70 @@ class _TabScreen4State extends State<TabScreen4> {
                   return Padding(
                     padding: EdgeInsets.all(2.0),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
+
                         MaterialButton(
+                          materialTapTargetSize: MaterialTapTargetSize.padded,
                           onPressed: _changeName,
                           child: Text("CHANGE NAME"),
+                        ),
+                        Divider(
+                          indent: 10,
+                          endIndent: 10,
+                          color: Colors.grey,
                         ),
                         MaterialButton(
                           onPressed: _changePassword,
                           child: Text("CHANGE PASSWORD"),
                         ),
+                        Divider(
+                          indent: 10,
+                          endIndent: 10,
+                          color: Colors.grey,
+                        ),
                         MaterialButton(
                           onPressed: _changePhone,
                           child: Text("CHANGE PHONE"),
                         ),
-                        MaterialButton(
-                          onPressed: _changeRadius,
-                          child: Text("CHANGE RADIUS"),
+                        Divider(
+                          indent: 10,
+                          endIndent: 10,
+                          color: Colors.grey,
                         ),
                         MaterialButton(
-                          onPressed: (){},
+                          onPressed: _loadPayment,
                           child: Text("BUY CREDIT"),
+                        ),
+                        Divider(
+                          indent: 10,
+                          endIndent: 10,
+                          color: Colors.grey,
                         ),
                         MaterialButton(
                           onPressed: _registerAccount,
                           child: Text("REGISTER"),
                         ),
+                        Divider(
+                          indent: 10,
+                          endIndent: 10,
+                          color: Colors.grey,
+                        ),
                         MaterialButton(
                           onPressed: _gotologinPage,
                           child: Text("LOG IN"),
                         ),
+                        Divider(
+                          indent: 10,
+                          endIndent: 10,
+                          color: Colors.grey,
+                        ),
                         MaterialButton(
                           onPressed: _logout,
-                          child: Text("LOG OUT"),
+                          child: Text(
+                            "LOG OUT",
+                            style: TextStyle(color: Colors.red),
+                          ),
                         )
                       ],
                     ),
@@ -294,11 +359,16 @@ class _TabScreen4State extends State<TabScreen4> {
             new FlatButton(
               child: new Text("Yes"),
               onPressed: () async {
-                Navigator.of(context).pop();
-                _image =
-                    await ImagePicker.pickImage(source: ImageSource.camera);
+                String base64Image;
+                try {
+                  Navigator.of(context).pop();
+                  _image =
+                      await ImagePicker.pickImage(source: ImageSource.camera);
 
-                String base64Image = base64Encode(_image.readAsBytesSync());
+                  base64Image = base64Encode(_image.readAsBytesSync());
+                } catch (e) {
+                  print(e);
+                }
                 http.post(urluploadImage, body: {
                   "encoded_string": base64Image,
                   "email": widget.user.email,
@@ -328,7 +398,6 @@ class _TabScreen4State extends State<TabScreen4> {
   }
 
   _getCurrentLocation() async {
-    
     geolocator
         .getCurrentPosition(desiredAccuracy: LocationAccuracy.best)
         .then((Position position) {
@@ -359,66 +428,7 @@ class _TabScreen4State extends State<TabScreen4> {
     }
   }
 
-  void _changeRadius() {
-    TextEditingController radiusController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        // return object of type Dialog
-        return AlertDialog(
-          title: new Text("Change new Radius (km)?"),
-          content: new TextField(
-              keyboardType: TextInputType.phone,
-              controller: radiusController,
-              decoration: InputDecoration(
-                labelText: 'new radius',
-                icon: Icon(Icons.map),
-              )),
-          actions: <Widget>[
-            // usually buttons at the bottom of the dialog
-            new FlatButton(
-              child: new Text("Yes"),
-              onPressed: () {
-                if (radiusController.text.length < 1) {
-                  Toast.show("Please enter new radius ", context,
-                      duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
-                  return;
-                }
-                http.post(urlupdate, body: {
-                  "email": widget.user.email,
-                  "radius": radiusController.text,
-                }).then((res) {
-                  var string = res.body;
-                  List dres = string.split(",");
-                  if (dres[0] == "success") {
-                    setState(() {
-                      widget.user.radius = dres[4];
-                      Toast.show("Success ", context,
-                          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
-                      Navigator.of(context).pop();
-                      return;
-                    });
-                  } else {}
-                }).catchError((err) {
-                  print(err);
-                });
-                Toast.show("Failed ", context,
-                    duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
-              },
-            ),
-            new FlatButton(
-              child: new Text("No"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
+  
   void _logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('email', '');
@@ -541,15 +551,14 @@ class _TabScreen4State extends State<TabScreen4> {
                       if (dres[0] == "success") {
                         Toast.show("Success", context,
                             duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
-                            savepref(passController.text);
-                            Navigator.of(context).pop();
+                        savepref(passController.text);
+                        Navigator.of(context).pop();
                       }
                     });
                   } else {}
                 }).catchError((err) {
                   print(err);
                 });
-                
               },
             ),
             new FlatButton(
@@ -594,7 +603,7 @@ class _TabScreen4State extends State<TabScreen4> {
                 if (phoneController.text.length < 5) {
                   Toast.show("Please enter correct phone number", context,
                       duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
-                      return;
+                  return;
                 }
                 http.post(urlupdate, body: {
                   "email": widget.user.email,
@@ -611,7 +620,6 @@ class _TabScreen4State extends State<TabScreen4> {
                       return;
                     });
                   }
-                  
                 }).catchError((err) {
                   print(err);
                 });
@@ -708,6 +716,91 @@ class _TabScreen4State extends State<TabScreen4> {
   void savepref(String pass) async {
     print('Inside savepref');
     SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('pass', pass);
+    await prefs.setString('pass', pass);
+  }
+
+  void _loadPayment() async {
+    if (widget.user.name == 'not register') {
+      Toast.show("You haven't logined yet, Please Login", context,
+          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+
+      return;
+    }
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+          
+            title: new Text("Purchase Credit?"),
+            content: Container(
+              
+              height: 100,
+              child: DropdownExample(),
+            ),
+            actions: <Widget>[
+              new FlatButton(
+                child: new Text("Yes"),
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  var now = new DateTime.now();
+                  var formatter = new DateFormat('ddMMyyyyhhmmss-');
+                  String formatted =
+                      formatter.format(now) + randomAlphaNumeric(10);
+                  print(formatted);
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => PaymentScreen(
+                              user: widget.user,
+                              orderid: formatted,
+                              val: _value)));
+                },
+              ),
+              new FlatButton(
+                child: new Text('No',style: TextStyle(color: Colors.red),),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              )
+            ],
+          );
+        });
+  }
+}
+
+class DropdownExample extends StatefulWidget {
+  @override
+  _DropdownExampleState createState() => _DropdownExampleState();
+}
+
+class _DropdownExampleState extends State<DropdownExample> {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: DropdownButton<String>(
+        items: [
+          DropdownMenuItem<String>(
+            child: Text('50 HCredit : RM10'),
+            value: '10',
+          ),
+          DropdownMenuItem<String>(
+            child: Text('105 HCredit : RM20'),
+            value: '20',
+          ),
+          DropdownMenuItem<String>(
+            child: Text('165 HCredit : RM30'),
+            value: '30',
+          ),
+        ],
+        onChanged: (String value) {
+          setState(() {
+            _value = value;
+          });
+        },
+        hint: Text('Select Credit'),
+        value: _value,
+      ),
+    );
   }
 }

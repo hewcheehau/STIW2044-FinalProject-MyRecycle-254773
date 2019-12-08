@@ -9,7 +9,7 @@ import 'package:toast/toast.dart';
 import 'dart:async';
 
 String pathAsset = 'assets/images/profile.png';
-String urlUpload = 'http://lawlietaini.com/myrecycle_user/php/register.php';
+String urlUpload = 'http://lawlietaini.com///myrecycle_user/php/register.php';
 File _image;
 final TextEditingController _namecontroller = TextEditingController();
 final TextEditingController _emcontroller = TextEditingController();
@@ -267,6 +267,7 @@ class _RegisterWidgetState extends State<RegisterWidget> {
           type: ProgressDialogType.Normal, isDismissible: false);
       pr.style(message: "Registration in progress");
       pr.show();
+      print('123');
       String base64Image = base64Encode(_image.readAsBytesSync());
       http.post(urlUpload, body: {
         "encoded_string": base64Image,
@@ -276,6 +277,8 @@ class _RegisterWidgetState extends State<RegisterWidget> {
         "phone": _phone,
       }).then((res) {
         print(res.statusCode);
+        
+        
         Toast.show(res.body, context,
             duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
         _image = null;
@@ -285,6 +288,11 @@ class _RegisterWidgetState extends State<RegisterWidget> {
         _phcontroller.text = "";
 
         pr.dismiss();
+        Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (BuildContext context) => LoginScreen()));
+        
         if (res.body == "failed") {
           print('enter fail area');
           _showDialog();
@@ -294,7 +302,7 @@ class _RegisterWidgetState extends State<RegisterWidget> {
                         context,
                         MaterialPageRoute(
                             builder: (BuildContext context) => LoginScreen())); */
-        }
+        } 
       }).catchError((err) {
         print(err);
       });

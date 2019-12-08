@@ -14,6 +14,7 @@ import 'package:myrecycle/registerform.dart';
 import 'package:place_picker/place_picker.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:myrecycle/login.dart';
+import 'package:myrecycle/curve_clipper.dart';
 
 double perpage = 1;
 
@@ -58,6 +59,8 @@ class _TabScreenState extends State<TabScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Size media = MediaQuery.of(context).size;
+
     // SystemUiOverlayStyle(statusBarColor: Colors.pinkAccent);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -65,7 +68,9 @@ class _TabScreenState extends State<TabScreen> {
         resizeToAvoidBottomPadding: false,
         floatingActionButton: FloatingActionButton(
           child: Icon(Icons.add),
-          backgroundColor: Colors.greenAccent[400],
+          foregroundColor: Colors.white,
+          backgroundColor: Colors.greenAccent[700],
+          
           elevation: 2.0,
           onPressed: _onNewItems,
           tooltip: 'Add new item',
@@ -82,20 +87,49 @@ class _TabScreenState extends State<TabScreen> {
             itemBuilder: (context, index) {
               if (index == 0) {
                 return Container(
+                 
+                  width: media.width,
                   child: Column(
                     children: <Widget>[
                       Stack(
                         children: <Widget>[
-                          Container(
+                             ClipPath(
+                                clipper: CurveClipper(),
+                            child:   Container(
+                              width: media.width,
+                              height: media.height*.25,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    
+                                    Color(0xFF00C853),
+                                    Color(0xFF76FF03),
+                                  ],
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                ),
+                               
+                              ),
+                            ),),
+                          
+                          /* Container(
                             height: 200,
                             decoration: BoxDecoration(
                               color: Colors.greenAccent[700],
                               borderRadius: BorderRadius.only(
-                                bottomRight: Radius.circular(50),
-                                bottomLeft: Radius.circular(50),
+                                bottomRight: Radius.circular(30),
+                                bottomLeft: Radius.circular(30),
                               ),
+                              gradient: LinearGradient(
+                                  colors: [
+                                    
+                                    Color(0xFF00C853),
+                                    Color(0xFF76FF03),
+                                  ],
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
                             ),
-                          ),
+                          ),),*/
                           /*
                            Image.asset(
                             "assets/images/green3.png",
@@ -104,6 +138,7 @@ class _TabScreenState extends State<TabScreen> {
                             fit: BoxFit.cover,
                           ), */
                           Column(
+                            
                             children: <Widget>[
                               SizedBox(
                                 height: 20,
@@ -123,7 +158,7 @@ class _TabScreenState extends State<TabScreen> {
                                     child: Text(
                                       greeting(widget.user.name),
                                       style: TextStyle(
-                                          color: Colors.white,
+                                          color: Colors.grey[200],
                                           fontSize: 18,
                                           fontWeight: FontWeight.bold,
                                           letterSpacing: 0.5),
@@ -175,7 +210,7 @@ class _TabScreenState extends State<TabScreen> {
                                       children: <Widget>[
                                         Row(
                                           children: <Widget>[
-                                            Icon(Icons.location_on),
+                                            Icon(Icons.location_on,color: Colors.redAccent,),
                                             SizedBox(
                                               width: 5,
                                             ),
@@ -186,7 +221,7 @@ class _TabScreenState extends State<TabScreen> {
                                         ),
                                         Row(
                                           children: <Widget>[
-                                            Icon(Icons.credit_card),
+                                            Icon(Icons.credit_card,color: Colors.blueAccent[100],),
                                             SizedBox(
                                               width: 5,
                                             ),
@@ -251,6 +286,7 @@ class _TabScreenState extends State<TabScreen> {
                           data[index]['itemdesc'],
                           data[index]['itemtitle'],
                           data[index]['itemowner'],
+                          data[index]['itemphone'],
                           data[index]['itemlatitude'],
                           data[index]['itemlongitude'],
                           widget.user.radius,
@@ -273,7 +309,9 @@ class _TabScreenState extends State<TabScreen> {
                                           "http://lawlietaini.com/myrecycle_user/images/${data[index]['itemimage']}.jpg"))),
                             ),
                             Expanded(
+                              flex: 2,
                               child: Container(
+                               
                                 child: Column(
                                   children: <Widget>[
                                     Text(
@@ -293,12 +331,30 @@ class _TabScreenState extends State<TabScreen> {
                                             horizontal: 2.0),
                                         itemBuilder: (context, _) => Icon(
                                               Icons.star,
-                                              color: Colors.yellowAccent,
+                                              color: Colors.teal[700],
                                             )),
+                                             SizedBox(
+                                      height: 5,
+                                    ),
+                                    
+                                  Icon(Icons.phone),
+                                  Text(data[index]['itemphone']),
                                     SizedBox(
                                       height: 5,
                                     ),
-                                    Text(data[index]['itemtime']),
+                                   Text(data[index]['itemtime']),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: Container(
+                                child: Column(
+                                  children: <Widget>[
+                                    Icon(Icons.chevron_right,size: 45,
+                                    color: Colors.greenAccent[700],),
+
                                   ],
                                 ),
                               ),
@@ -372,6 +428,7 @@ class _TabScreenState extends State<TabScreen> {
       String itemdesc,
       String itemtitle,
       String itemowner,
+      String itemphone,
       String itemlatitude,
       String itemlongitude,
       String radius,
@@ -383,6 +440,7 @@ class _TabScreenState extends State<TabScreen> {
       itemdesc: itemdesc,
       itemtitle: itemtitle,
       itemowner: itemowner,
+      itemphone: itemphone,
       itemlatitude: itemlatitude,
       itemlongitude: itemlongitude,
     );

@@ -34,8 +34,15 @@ dev_dependencies:
   http: ^0.12.0+2
   geolocator: ^5.1.5
   flutter_rating_bar: ^3.0.0
-  google_maps_flutter: ^0.5.21+12
+  google_maps_flutter: ^0.5.19+2
   place_picker: ^0.9.9
+  ff_navigation_bar: ^0.0.1
+  flutter_custom_clippers: ^1.1.0
+  intl: ^0.16.0
+  random_string: ^1.1.0
+  webview_flutter: ^0.3.16
+  flutter_google_places: ^0.2.3
+  
 
 
 # For information on the generic Dart part of this file, see the
@@ -64,6 +71,7 @@ flutter:
     - assets/images/upload.jpg
     - assets/images/profile.png
     - assets/images/upload1.png
+    - assets/images/green0.jpg
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

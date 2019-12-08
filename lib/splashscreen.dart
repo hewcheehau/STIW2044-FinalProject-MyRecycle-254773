@@ -127,7 +127,7 @@ bool _isEmailValid(String email) {
 void _onLogin(String email, String pass, BuildContext ctx) {
   http.post(urlGetuser, body: {
     "email": _email,
-    "password": _pw,
+    "password": _pw, 
   }).then((res) {
     print(res.statusCode);
     var string = res.body;
@@ -153,8 +153,8 @@ void _onLogin(String email, String pass, BuildContext ctx) {
       //allow login as unregistered user
       print("No register");
       User user = new User(
-          name: "Not register",
-          email: "user@noregister",
+          name: "No register",
+          email: "user@noregister.com",
           phone: "not register",
           radius: "15",
           credit: "0",

@@ -6,6 +6,7 @@ import 'package:myrecycle/tabscreen/tabscreen3.dart';
 import 'package:myrecycle/tabscreen/tabscreen4.dart';
 import 'user.dart';
 import 'package:flutter/services.dart';
+import 'package:ff_navigation_bar/ff_navigation_bar.dart';
 
 class MainScreen extends StatefulWidget {
   final User user;
@@ -45,12 +46,43 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-      statusBarColor: Colors.greenAccent[700],
+      statusBarColor: Colors.greenAccent[700]
     ));
     SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
     return Scaffold(
-      body: tabs[currentTabIndex],
-      bottomNavigationBar: BottomNavigationBar(
+      backgroundColor: Colors.grey[200],
+      body: 
+      tabs[currentTabIndex],
+      /*bottomNavigationBar: FFNavigationBar(
+        theme: FFNavigationBarTheme(
+          barBackgroundColor: Colors.white,
+          selectedItemBackgroundColor: Colors.green,
+          selectedItemIconColor: Colors.white,
+          selectedItemLabelColor: Colors.black
+        ),
+        selectedIndex: currentTabIndex,
+        onSelectTab: onTapped,
+        items: [
+          FFNavigationBarItem(
+            iconData: Icons.home,
+            label: 'Home',
+          ),
+          FFNavigationBarItem(
+            iconData: Icons.calendar_view_day,
+            label: 'Calender',
+          ),
+           FFNavigationBarItem(
+            iconData: Icons.message,
+            label: 'Message',
+          ),
+           FFNavigationBarItem(
+            iconData: Icons.person_outline,
+            label: 'Profile',
+          ),
+        ],
+      ), */
+      bottomNavigationBar: 
+          BottomNavigationBar(
           onTap: onTapped,
           currentIndex: currentTabIndex,
           backgroundColor: Colors.white,
@@ -68,9 +100,9 @@ class _MainScreenState extends State<MainScreen> {
                 icon: Icon(Icons.message), title: Text('Inform')),
             BottomNavigationBarItem(
               icon: Icon(Icons.person),
-              title: Text('Profile'),
+              title: Text('Me'),
             ),
           ]),
-    );
+      );
   }
 }

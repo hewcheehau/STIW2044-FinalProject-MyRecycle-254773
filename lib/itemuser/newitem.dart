@@ -11,6 +11,13 @@ import 'package:flutter/services.dart';
 import 'package:toast/toast.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:http/http.dart' as http;
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_maps_webservice/places.dart';
+import 'package:flutter_google_places/flutter_google_places.dart';
+import 'package:google_map_location_picker/generated/i18n.dart' as location_picker;
+
+const kGoogleApiKey = "AIzaSyCjm6b7WXTEmdfw529DnrKL3OTl4Wq0_5Q";
+GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: kGoogleApiKey);
 
 String pickLocation = "";
 File _image;
@@ -20,6 +27,7 @@ String urlgetuser = "http://lawlietaini.com/myrecycle_user/php/get_user.php";
 
 final TextEditingController _itemcontroller = TextEditingController();
 final TextEditingController _desccontroller = TextEditingController();
+final TextEditingController _phcontroller = TextEditingController();
 //final TextEditingController _pricecontroller = TextEditingController();
 final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
 Position _currentPosition;
@@ -37,6 +45,8 @@ class NewItem extends StatefulWidget {
 class _NewItemState extends State<NewItem> {
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(
+        SystemUiOverlayStyle(statusBarColor: Colors.greenAccent[700]));
     return WillPopScope(
       onWillPop: _onBackPressAppBar,
       child: Scaffold(
@@ -89,7 +99,7 @@ class _CreateNewItemState extends State<CreateNewItem> {
         Stack(
           children: <Widget>[
             Padding(
-              padding: EdgeInsets.only(left: 35, right: 35, top: 5),
+              padding: EdgeInsets.only(left: 35, right: 35, top: 0),
               child: Container(
                 height: 200,
                 width: 280,
@@ -108,12 +118,14 @@ class _CreateNewItemState extends State<CreateNewItem> {
               bottom: 0.0,
               child: new FloatingActionButton(
                 child: const Icon(Icons.add),
-                backgroundColor: Colors.green.shade800,
+                backgroundColor: Colors.greenAccent[700],
                 onPressed: _choose,
               ),
-            )
+            ),
+           
           ],
         ),
+         Text('Upload item photo'),
         SizedBox(
           height: 20,
         ),
@@ -121,7 +133,7 @@ class _CreateNewItemState extends State<CreateNewItem> {
           controller: _itemcontroller,
           keyboardType: TextInputType.text,
           decoration: InputDecoration(
-            labelText: 'Item Name',
+            labelText: 'Materials Type: ',
             border: OutlineInputBorder(
               borderSide: BorderSide(color: Colors.green),
             ),
@@ -144,6 +156,27 @@ class _CreateNewItemState extends State<CreateNewItem> {
           maxLines: 3,
           decoration: InputDecoration(
             labelText: 'Item Description',
+            border: OutlineInputBorder(
+              borderSide: BorderSide(color: Colors.green),
+            ),
+          ),
+          validator: (value) {
+            if (value.length == 0) {
+              return 'Cannot be empty';
+            } else {
+              return null;
+            }
+          },
+          style: TextStyle(fontFamily: "Poppins", fontSize: 15),
+        ),
+        SizedBox(
+          height: 20,
+        ),
+        TextFormField(
+          controller: _phcontroller,
+          keyboardType: TextInputType.text,
+          decoration: InputDecoration(
+            labelText: 'Phone number',
             border: OutlineInputBorder(
               borderSide: BorderSide(color: Colors.green),
             ),
@@ -284,16 +317,15 @@ class _CreateNewItemState extends State<CreateNewItem> {
   }
 
   void _loadmap() async {
-    LocationResult result = await Navigator.of(context).push(MaterialPageRoute(
+  /* LocationResult result = await Navigator.of(context).push(MaterialPageRoute(
         builder: (context) =>
             PlacePicker("AIzaSyCjm6b7WXTEmdfw529DnrKL3OTl4Wq0_5Q")));
-
-    // Handle the result in your way
+    // Handle the result in your way*/
     print("MAP SHOW");
-    print(result);
+    
+    
 
-    String f = result.toString();
-    pickLocation = f;
+   Navigator.of(context).push(MaterialPageRoute(builder: (context)=>MapSearch()));
   }
 
   void _getAddressFromLatLng() async {
@@ -323,6 +355,10 @@ class _CreateNewItemState extends State<CreateNewItem> {
           duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
       return;
     }
+    if (_phcontroller.text.isEmpty) {
+      Toast.show("Please enter your phone number", context,
+          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+    }
     ProgressDialog pr = new ProgressDialog(context,
         type: ProgressDialogType.Normal, isDismissible: false);
     pr.style(message: "Requesting");
@@ -337,6 +373,7 @@ class _CreateNewItemState extends State<CreateNewItem> {
       "email": widget.user.email,
       "itemtitle": _itemcontroller.text,
       "itemdesc": _desccontroller.text,
+      "itemphone": _phcontroller.text,
       "latitude": _currentPosition.latitude.toString(),
       "longitude": _currentPosition.longitude.toString(),
       "credit": widget.user.credit,
@@ -350,6 +387,7 @@ class _CreateNewItemState extends State<CreateNewItem> {
         _image = null;
         _itemcontroller.text = "";
         _desccontroller.text = "";
+        _phcontroller.text = "";
         pr.dismiss();
         print(widget.user.email);
 
@@ -388,4 +426,148 @@ class _CreateNewItemState extends State<CreateNewItem> {
       print(err);
     });
   }
+}
+
+class MapSearch extends StatefulWidget {
+  @override
+  _MapSearchState createState() => _MapSearchState();
+}
+
+class _MapSearchState extends State<MapSearch> {
+  Set<Marker> markers = Set();
+  Marker resultMarker = Marker(
+      markerId: MarkerId('ID'),
+      position: LatLng(_currentPosition.latitude, _currentPosition.longitude),
+      draggable: true,
+      onDragEnd: ((value) {
+        print(value.latitude);
+        print(value.longitude);
+      }),
+      onTap: () {
+        print('Marker tapped');
+      });
+
+  GoogleMapController mapController;
+  String searchAdd;
+
+  @override
+  void initState() {
+    super.initState();
+    markers.add(resultMarker);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.greenAccent[700],
+        centerTitle: true,
+        title: Text('Pick Up Point'),
+      ),
+      body: Stack(
+        children: <Widget>[
+          GoogleMap(
+              initialCameraPosition: CameraPosition(
+                  target: LatLng(
+                      _currentPosition.latitude, _currentPosition.longitude),
+                  zoom: 12),
+              onMapCreated: onMapCreated,
+              markers:
+                  markers ,
+                  onTap: (LatLng) async {
+                     try {
+      List<Placemark> p = await geolocator.placemarkFromCoordinates(
+        LatLng.latitude,LatLng.longitude
+      );
+
+      Placemark place = p[0];
+
+      setState(() {
+        pickLocation =
+            "${place.name},${place.locality}, ${place.postalCode}, ${place.country}";
+      });
+    } catch (e) {
+      print(e);
+    }
+                    print('${LatLng.latitude}, ${LatLng.longitude}');
+                  },
+                    /*Set<Marker>.of(
+          <Marker>[
+            Marker(
+              draggable: true,
+              markerId: MarkerId("1"),
+              position: LatLng(_currentPosition.latitude,_currentPosition.longitude),
+              icon: BitmapDescriptor.defaultMarker,
+              infoWindow: const InfoWindow(
+                title: 'Testing map',
+              ),
+            )
+          ],
+        ),*/
+
+              ),
+          Positioned(
+            top: 30,
+            right: 15,
+            left: 15,
+            child: Container(
+              height: 50.0,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10.0),
+                  color: Colors.white),
+              child: TextField(
+                decoration: InputDecoration(
+                    hintText: "Enter Address",
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.only(left: 15, top: 15),
+                    suffixIcon: IconButton(
+                      icon: Icon(Icons.search),
+                      onPressed: _searchAdd,
+                      iconSize: 30.0,
+                    )),
+                onChanged: (val) {
+                  setState(() {
+                    searchAdd = val;
+                  });
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void onMapCreated(GoogleMapController controller) {
+    setState(() {
+      mapController = controller;
+    });
+  }
+
+  void _searchAdd() {
+    Geolocator().placemarkFromAddress(searchAdd).then((result) {
+      mapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+          target:
+              LatLng(result[0].position.latitude, result[0].position.longitude),
+          zoom: 12,
+          ),
+          ),
+          
+        );
+    });
+  }
+
+  /*  _updateMarker(CameraPosition position) {
+             Position newMarkerPosition = Position(
+        latitude: _currentPosition.latitude,
+        longitude: _currentPosition.longitude);
+    Marker marker = markers["1"];
+
+    setState(() {
+      markers["1"] = marker.copyWith(
+          positionParam: LatLng(newMarkerPosition.latitude, newMarkerPosition.longitude));
+    });
+          }*/
+
 }
