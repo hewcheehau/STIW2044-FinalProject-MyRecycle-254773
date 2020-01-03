@@ -1,7 +1,7 @@
 class User {
   
-  String name, email, phone, radius, credit,rating, datereg,regis;
+  String name, email, phone, points, credit,rating, datereg,regis;
 
-  User({this.name,this.email,this.phone,this.radius,this.credit,this.rating,this.datereg,this.regis});
+  User({this.name,this.email,this.phone,this.points,this.credit,this.rating,this.datereg,this.regis});
   
 }

@@ -19,6 +19,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -35,13 +36,19 @@ dev_dependencies:
   geolocator: ^5.1.5
   flutter_rating_bar: ^3.0.0
   google_maps_flutter: ^0.5.19+2
-  place_picker: ^0.9.9
-  ff_navigation_bar: ^0.0.1
+  place_picker: ^0.9.11
   flutter_custom_clippers: ^1.1.0
-  intl: ^0.16.0
   random_string: ^1.1.0
-  webview_flutter: ^0.3.16
-  flutter_google_places: ^0.2.3
+  loadmore: ^1.0.4
+  intl: ^0.16.0
+  rflutter_alert: ^1.0.2
+  google_map_location_picker: ^3.0.0
+  webview_flutter: ^0.3.18+1
+  flutter_easyloading: ^1.0.1
+  font_awesome_flutter: ^8.5.0
+  empty_widget: ^0.0.1
+
+  
   
 
 
@@ -72,6 +79,7 @@ flutter:
     - assets/images/profile.png
     - assets/images/upload1.png
     - assets/images/green0.jpg
+    - assets/images/sunny.jpg
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

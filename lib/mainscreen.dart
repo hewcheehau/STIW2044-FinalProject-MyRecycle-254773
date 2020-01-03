@@ -6,7 +6,8 @@ import 'package:myrecycle/tabscreen/tabscreen3.dart';
 import 'package:myrecycle/tabscreen/tabscreen4.dart';
 import 'user.dart';
 import 'package:flutter/services.dart';
-import 'package:ff_navigation_bar/ff_navigation_bar.dart';
+
+//import 'package:ff_navigation_bar/ff_navigation_bar.dart';
 
 class MainScreen extends StatefulWidget {
   final User user;
@@ -27,8 +28,8 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     tabs = [
       TabScreen(user: widget.user),
-      TabScreen2(),
-      TabScreen3(),
+      TabScreen2(user:widget.user),
+      
       TabScreen4(
         user: widget.user,
       ),
@@ -45,11 +46,10 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-      statusBarColor: Colors.greenAccent[700]
-    ));
-    SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
-    return Scaffold(
+
+   SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
+    
+      return Scaffold(
       backgroundColor: Colors.grey[200],
       body: 
       tabs[currentTabIndex],
@@ -85,24 +85,26 @@ class _MainScreenState extends State<MainScreen> {
           BottomNavigationBar(
           onTap: onTapped,
           currentIndex: currentTabIndex,
-          backgroundColor: Colors.white,
-          selectedItemColor: Colors.green,
+          backgroundColor: Colors.grey[200],
+          selectedItemColor: Colors.tealAccent[700],
           unselectedItemColor: Colors.black,
           type: BottomNavigationBarType.fixed,
+          
+          
           items: [
             BottomNavigationBarItem(
                 icon: Icon(Icons.home), title: Text('Home')),
             BottomNavigationBarItem(
-              icon: Icon(Icons.calendar_view_day),
-              title: Text('Calendar'),
+              icon: Icon(Icons.redeem),
+              title: Text('Redeem'),
             ),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.message), title: Text('Inform')),
+         /*  BottomNavigationBarItem(
+                icon: Icon(Icons.notifications_active), title: Text('Inform')),*/
             BottomNavigationBarItem(
               icon: Icon(Icons.person),
               title: Text('Me'),
             ),
           ]),
-      );
+    );
   }
 }

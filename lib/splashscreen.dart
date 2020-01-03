@@ -103,7 +103,7 @@ void loadpref(BuildContext ctx) async {
       name: "Not register",
       email: "user@noregister.com",
       phone: "not register",
-      radius: "15",
+      points: "5",
       credit: "0",
       rating: "0",
     );
@@ -140,7 +140,7 @@ void _onLogin(String email, String pass, BuildContext ctx) {
           name: dres[1],
           email: dres[2],
           phone: dres[3],
-          radius: dres[4],
+          points: dres[4],
           credit: dres[5],
           rating: dres[6]);
       Navigator.pushReplacement(
@@ -153,10 +153,10 @@ void _onLogin(String email, String pass, BuildContext ctx) {
       //allow login as unregistered user
       print("No register");
       User user = new User(
-          name: "No register",
+          name: "Not register",
           email: "user@noregister.com",
           phone: "not register",
-          radius: "15",
+          points: "5",
           credit: "0",
           rating: "0");
       Navigator.pushReplacement(

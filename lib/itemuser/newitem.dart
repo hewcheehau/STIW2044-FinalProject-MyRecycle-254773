@@ -1,23 +1,26 @@
 import 'dart:convert';
-
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:geolocator/geolocator.dart';
 import 'package:myrecycle/user.dart';
 import 'package:myrecycle/mainscreen.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:place_picker/place_picker.dart';
+//import 'package:place_picker/place_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:toast/toast.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:http/http.dart' as http;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:google_maps_webservice/places.dart';
-import 'package:flutter_google_places/flutter_google_places.dart';
-import 'package:google_map_location_picker/generated/i18n.dart' as location_picker;
+//import 'package:google_maps_webservice/places.dart';
+//import 'package:flutter_google_places/flutter_google_places.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+/*import 'package:google_map_location_picker/generated/i18n.dart'
+    as location_picker;*/
+//import 'package:google_map_location_picker/google_map_location_picker.dart';
+import 'package:place_picker/place_picker.dart';
 
 const kGoogleApiKey = "AIzaSyCjm6b7WXTEmdfw529DnrKL3OTl4Wq0_5Q";
-GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: kGoogleApiKey);
 
 String pickLocation = "";
 File _image;
@@ -33,6 +36,20 @@ final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
 Position _currentPosition;
 String _currentAddress = "Searching your current location...";
 
+class NewItemMain extends StatefulWidget {
+  @override
+  _NewItemMainState createState() => _NewItemMainState();
+}
+
+class _NewItemMainState extends State<NewItemMain> {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+
+        home: NewItem());
+  }
+}
+
 class NewItem extends StatefulWidget {
   final User user;
 
@@ -46,14 +63,14 @@ class _NewItemState extends State<NewItem> {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(
-        SystemUiOverlayStyle(statusBarColor: Colors.greenAccent[700]));
+        SystemUiOverlayStyle(statusBarColor: Colors.tealAccent[700]));
     return WillPopScope(
       onWillPop: _onBackPressAppBar,
       child: Scaffold(
         appBar: AppBar(
           title: Text('Add Recycle Items'),
           centerTitle: true,
-          backgroundColor: Colors.greenAccent[700],
+          backgroundColor: Colors.tealAccent[700],
         ),
         body: SingleChildScrollView(
           child: Container(
@@ -66,6 +83,11 @@ class _NewItemState extends State<NewItem> {
   }
 
   Future<bool> _onBackPressAppBar() {
+    _image = null;
+    _itemcontroller.text = '';
+    _desccontroller.text ='';
+    _phcontroller.text ="";
+    
     Navigator.pop(context,
         MaterialPageRoute(builder: (context) => MainScreen(user: widget.user)));
 
@@ -83,7 +105,7 @@ class CreateNewItem extends StatefulWidget {
 
 class _CreateNewItemState extends State<CreateNewItem> {
   String defaultValue = "Pickup";
-
+  LocationResult _pickedLocation;
   @override
   void initState() {
     super.initState();
@@ -109,7 +131,7 @@ class _CreateNewItemState extends State<CreateNewItem> {
                       image: _image == null
                           ? AssetImage(pathAsset)
                           : FileImage(_image),
-                      fit: BoxFit.fill),
+                      fit: BoxFit.cover),
                 ),
               ),
             ),
@@ -117,15 +139,20 @@ class _CreateNewItemState extends State<CreateNewItem> {
               right: 30.0,
               bottom: 0.0,
               child: new FloatingActionButton(
-                child: const Icon(Icons.add),
-                backgroundColor: Colors.greenAccent[700],
+                child: const Icon(Icons.add_a_photo),
+                backgroundColor: Colors.tealAccent[700],
                 onPressed: _choose,
               ),
             ),
-           
           ],
         ),
-         Text('Upload item photo'),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text('Upload item photo.'),
+            _image == null?Text('(*Required)',style:TextStyle(color: Colors.red)):Text(''),
+          ],
+        ),
         SizedBox(
           height: 20,
         ),
@@ -194,7 +221,7 @@ class _CreateNewItemState extends State<CreateNewItem> {
           height: 20,
         ),
         GestureDetector(
-          onTap: _loadmap,
+          onTap: _onloadmap,
           child: Container(
             padding: EdgeInsets.only(top: 5, left: 15, right: 15, bottom: 5),
             decoration: BoxDecoration(
@@ -205,16 +232,18 @@ class _CreateNewItemState extends State<CreateNewItem> {
             child: Row(
               children: <Widget>[
                 Icon(
-                  Icons.add,
+                  Icons.add_location,
                   color: Colors.white,
                   size: 30,
                 ),
                 SizedBox(
                   width: 10,
                 ),
-                Text("Pickup Location " + pickLocation,
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold, color: Colors.white)),
+                Expanded(
+                  child: Text("Pickup Location " + _pickedLocation.toString(),
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, color: Colors.white)),
+                ),
               ],
             ),
           ),
@@ -224,7 +253,7 @@ class _CreateNewItemState extends State<CreateNewItem> {
         ),
         Row(
           children: <Widget>[
-            Icon(Icons.location_searching),
+            Icon(Icons.location_on),
             SizedBox(
               width: 10,
             ),
@@ -248,7 +277,7 @@ class _CreateNewItemState extends State<CreateNewItem> {
           padding: EdgeInsets.only(top: 10, bottom: 10),
           child: MaterialButton(
             child: Text(
-              'Submit',
+              'Add Items',
               style: TextStyle(
                   color: Colors.white, fontSize: 20, letterSpacing: 0.8),
             ),
@@ -257,7 +286,7 @@ class _CreateNewItemState extends State<CreateNewItem> {
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20.0)),
             onPressed: _onAddItem,
-            color: Colors.greenAccent[700],
+            color: Colors.tealAccent[700],
           ),
         ),
         SizedBox(
@@ -279,8 +308,11 @@ class _CreateNewItemState extends State<CreateNewItem> {
                   leading: Icon(Icons.camera_alt),
                   title: Text('Camera'),
                   onTap: () async {
-                    _image =
-                        await ImagePicker.pickImage(source: ImageSource.camera);
+                    _image = await ImagePicker.pickImage(
+                        source: ImageSource.camera,
+                        imageQuality: 80,
+                        maxWidth: double.infinity,
+                        maxHeight: 450);
                     setState(() {});
                     Navigator.pop(context);
                   },
@@ -290,7 +322,7 @@ class _CreateNewItemState extends State<CreateNewItem> {
                   title: Text('Gallery'),
                   onTap: () async {
                     _image = await ImagePicker.pickImage(
-                        source: ImageSource.gallery);
+                        source: ImageSource.gallery,imageQuality: 80,maxWidth: double.infinity,maxHeight: 450);
                     setState(() {});
                     Navigator.pop(context);
                   },
@@ -316,16 +348,28 @@ class _CreateNewItemState extends State<CreateNewItem> {
     });
   }
 
-  void _loadmap() async {
-  /* LocationResult result = await Navigator.of(context).push(MaterialPageRoute(
+  /*void _loadmap() async {
+  /*LocationResult result = await Navigator.of(context).push(MaterialPageRoute(
         builder: (context) =>
-            PlacePicker("AIzaSyCjm6b7WXTEmdfw529DnrKL3OTl4Wq0_5Q")));
-    // Handle the result in your way*/
+            PlacePicker("AIzaSyCjm6b7WXTEmdfw529DnrKL3OTl4Wq0_5Q")));*/
+    // Handle the result in your way
+      LocationResult result = await showLocationPicker(context,"AIzaSyCjm6b7WXTEmdfw529DnrKL3OTl4Wq0_5Q");
+               print("result = $result");
     print("MAP SHOW");
-    
+    setState(() => _pickedLocation = result);
     
 
-   Navigator.of(context).push(MaterialPageRoute(builder: (context)=>MapSearch()));
+   //Navigator.of(context).push(MaterialPageRoute(builder: (context)=>MapSearch()));
+  }*/
+  void _onloadmap() async {
+    LocationResult result = await Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) =>
+            PlacePicker("AIzaSyCjm6b7WXTEmdfw529DnrKL3OTl4Wq0_5Q")));
+    print("result = $result");
+    setState(() => _pickedLocation = result);
+    // Handle the result in your way
+    print("MAP SHOW:");
+   
   }
 
   void _getAddressFromLatLng() async {
@@ -388,6 +432,7 @@ class _CreateNewItemState extends State<CreateNewItem> {
         _itemcontroller.text = "";
         _desccontroller.text = "";
         _phcontroller.text = "";
+
         pr.dismiss();
         print(widget.user.email);
 
@@ -416,7 +461,7 @@ class _CreateNewItemState extends State<CreateNewItem> {
             name: dres[1],
             email: dres[2],
             phone: dres[3],
-            radius: dres[4],
+            points: dres[4],
             credit: dres[5],
             rating: dres[6]);
         Navigator.push(context,
@@ -440,6 +485,7 @@ class _MapSearchState extends State<MapSearch> {
       position: LatLng(_currentPosition.latitude, _currentPosition.longitude),
       draggable: true,
       onDragEnd: ((value) {
+        print('this is location');
         print(value.latitude);
         print(value.longitude);
       }),
@@ -467,31 +513,29 @@ class _MapSearchState extends State<MapSearch> {
       body: Stack(
         children: <Widget>[
           GoogleMap(
-              initialCameraPosition: CameraPosition(
-                  target: LatLng(
-                      _currentPosition.latitude, _currentPosition.longitude),
-                  zoom: 12),
-              onMapCreated: onMapCreated,
-              markers:
-                  markers ,
-                  onTap: (LatLng) async {
-                     try {
-      List<Placemark> p = await geolocator.placemarkFromCoordinates(
-        LatLng.latitude,LatLng.longitude
-      );
+            initialCameraPosition: CameraPosition(
+                target: LatLng(
+                    _currentPosition.latitude, _currentPosition.longitude),
+                zoom: 12),
+            onMapCreated: onMapCreated,
+            markers: markers,
+            onTap: (LatLng) async {
+              try {
+                List<Placemark> p = await geolocator.placemarkFromCoordinates(
+                    LatLng.latitude, LatLng.longitude);
 
-      Placemark place = p[0];
+                Placemark place = p[0];
 
-      setState(() {
-        pickLocation =
-            "${place.name},${place.locality}, ${place.postalCode}, ${place.country}";
-      });
-    } catch (e) {
-      print(e);
-    }
-                    print('${LatLng.latitude}, ${LatLng.longitude}');
-                  },
-                    /*Set<Marker>.of(
+                setState(() {
+                  pickLocation =
+                      "${place.name},${place.locality}, ${place.postalCode}, ${place.country}";
+                });
+              } catch (e) {
+                print(e);
+              }
+              print('${LatLng.latitude}, ${LatLng.longitude}');
+            },
+            /*Set<Marker>.of(
           <Marker>[
             Marker(
               draggable: true,
@@ -504,8 +548,7 @@ class _MapSearchState extends State<MapSearch> {
             )
           ],
         ),*/
-
-              ),
+          ),
           Positioned(
             top: 30,
             right: 15,
@@ -547,27 +590,15 @@ class _MapSearchState extends State<MapSearch> {
 
   void _searchAdd() {
     Geolocator().placemarkFromAddress(searchAdd).then((result) {
-      mapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-          target:
-              LatLng(result[0].position.latitude, result[0].position.longitude),
-          zoom: 12,
+      mapController.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: LatLng(
+                result[0].position.latitude, result[0].position.longitude),
+            zoom: 12,
           ),
-          ),
-          
-        );
+        ),
+      );
     });
   }
-
-  /*  _updateMarker(CameraPosition position) {
-             Position newMarkerPosition = Position(
-        latitude: _currentPosition.latitude,
-        longitude: _currentPosition.longitude);
-    Marker marker = markers["1"];
-
-    setState(() {
-      markers["1"] = marker.copyWith(
-          positionParam: LatLng(newMarkerPosition.latitude, newMarkerPosition.longitude));
-    });
-          }*/
-
 }

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'login.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:toast/toast.dart';
+
+
 
 String urlCode = 'http://lawlietaini.com/myrecycle_user/php/code.php';
 String urlVerify = 'http://lawlietaini.com/myrecycle_user/php/verifycode.php';
@@ -15,18 +18,21 @@ class ResetAcc extends StatefulWidget {
 
 class _ResetAccState extends State<ResetAcc> {
   final TextEditingController _emcontroller = TextEditingController();
-  String _email, _pass;
+  String _email, _pass,_code;
   bool _validate = false;
+  
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(statusBarColor: Colors.tealAccent[700]));
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.green.shade800,
+        backgroundColor: Colors.tealAccent[700],
         title: Text(
           'Forgot password',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold,letterSpacing: 0.6),
         ),
+        centerTitle: true,
       ),
       body: Center(
         child: Column(
@@ -90,7 +96,7 @@ class _ResetAccState extends State<ResetAcc> {
                   alignment: Alignment.centerLeft,
                   child: RaisedButton(
                     padding: EdgeInsets.fromLTRB(30, 0, 30, 0),
-                    color: Colors.greenAccent[700],
+                    color: Colors.tealAccent[700],
                     onPressed: _pressButton,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20.0),
@@ -193,11 +199,12 @@ class _VerifypassState extends State<Verifypass> {
         onWillPop: () => _goBack(context),
         child: Scaffold(
           appBar: AppBar(
-            backgroundColor: Colors.green.shade800,
+            backgroundColor: Colors.tealAccent[700],
             title: Text(
               'Verification',
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: TextStyle(fontWeight: FontWeight.bold,letterSpacing: 0.6),
             ),
+            centerTitle: true,
           ),
           body: Center(
             child: Column(
@@ -263,7 +270,7 @@ class _VerifypassState extends State<Verifypass> {
                       alignment: Alignment.centerLeft,
                       child: RaisedButton(
                         padding: EdgeInsets.fromLTRB(30, 0, 30, 0),
-                        color: Colors.greenAccent[700],
+                        color: Colors.tealAccent[700],
                         onPressed: _pressButton,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20.0),
@@ -277,19 +284,21 @@ class _VerifypassState extends State<Verifypass> {
                         ),
                       )),
                 ),
+          
               ],
             ),
           ),
         ));
   }
 
-  void _pressButton() {
+  void _pressButton() async{
     _code = _codecontroller.text;
     _email = widget.email;
-    if (_code.length == 6) {
+    print('enter verify code');
+    if (_code.length >= 6) {
       ProgressDialog rs = ProgressDialog(context,
           type: ProgressDialogType.Normal, isDismissible: false);
-      rs.style(message: null);
+      rs.style(message: 'Verifying');
       rs.show();
 
       http.post(urlVerify, body: {
@@ -335,7 +344,7 @@ Future<bool> _goBack(BuildContext context) {
             ),
             new FlatButton(
               onPressed: () => Navigator.of(context).pop(true),
-              child: new Text('Yes'),
+              child: new Text('Yes',style: TextStyle(color: Colors.red),),
             ),
           ],
         ),
@@ -366,7 +375,7 @@ class _ResetPassState extends State<ResetPass> {
                 child: Scaffold(
               resizeToAvoidBottomPadding: false,
               appBar: AppBar(
-                backgroundColor: Colors.green.shade800,
+                backgroundColor: Colors.tealAccent[700],
                 title: Text(
                   'Password Reset',
                   style: TextStyle(fontWeight: FontWeight.bold),

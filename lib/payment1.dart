@@ -6,18 +6,18 @@ import 'package:http/http.dart' as http;
 import 'mainscreen.dart';
 
 
-class PaymentScreen extends StatefulWidget {
+class PaymentScreen1 extends StatefulWidget {
 
   final User user;
   final String orderid,val;
 
-  PaymentScreen({this.user,this.orderid,this.val});
+  PaymentScreen1({this.user,this.orderid,this.val});
 
   @override
-  _PaymentScreenState createState() => _PaymentScreenState();
+  _PaymentScreen1State createState() => _PaymentScreen1State();
 }
 
-class _PaymentScreenState extends State<PaymentScreen> {
+class _PaymentScreen1State extends State<PaymentScreen1> {
 
   Completer<WebViewController>_controller = Completer<WebViewController>();
 

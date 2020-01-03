@@ -9,7 +9,7 @@ class _RecyclePointState extends State<RecyclePoint> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      
+          
     );
   }
 }
